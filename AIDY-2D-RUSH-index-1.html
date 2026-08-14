@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>AIDY 2D RUSH</title>
+<style>
+:root{--primary:#FF3366;--secondary:#00E5FF;--dark:#111;--light:#FFF;--bg:#222;--panel:rgba(0,0,0,.85)}
+*{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
+body{background-color:var(--bg);color:var(--light);overflow:hidden;touch-action:none;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center}
+#game-container{position:relative;width:100%;height:100%;max-width:600px;background:#000;overflow:hidden;box-shadow:0 0 20px rgba(0,0,0,.8)}
+canvas{display:block;width:100%;height:100%}
+.screen{position:absolute;top:0;left:0;width:100%;height:100%;display:none;flex-direction:column;justify-content:center;align-items:center;background:var(--panel);z-index:10;padding:20px;text-align:center;overflow-y:auto}
+.active{display:flex}
+h1{font-size:3.5rem;margin-bottom:10px;color:var(--primary);text-shadow:0 0 10px var(--primary),2px 2px 0 #000;letter-spacing:2px;font-style:italic}
+h1 span{color:var(--secondary);text-shadow:0 0 10px var(--secondary),2px 2px 0 #000}
+h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
+.btn{background:linear-gradient(135deg,var(--primary),#D02050);color:#FFF;border:3px solid #FFF;padding:15px 30px;font-size:1.2rem;font-weight:bold;border-radius:30px;margin:10px;min-width:200px;cursor:pointer;text-transform:uppercase;box-shadow:0 5px 15px rgba(255,51,102,.4);transition:transform .1s}
+.btn:active{transform:scale(.95)}
+.btn.secondary{background:linear-gradient(135deg,var(--secondary),#00B3CC);box-shadow:0 5px 15px rgba(0,229,255,.4)}
+.btn.disabled{background:#555;border-color:#777;box-shadow:none;color:#888}
+.top-bar{position:absolute;top:0;left:0;width:100%;padding:15px;display:flex;justify-content:space-between;z-index:5;pointer-events:none;font-size:1.2rem;font-weight:bold;text-shadow:1px 1px 3px #000}
+.top-bar>div{pointer-events:auto}
+#hud-score{color:#FFF}#hud-coins{color:#FFD700}
+.controls{position:absolute;bottom:20px;left:0;width:100%;display:flex;justify-content:space-between;padding:0 20px;z-index:5}
+.control-btn{width:80px;height:80px;background:rgba(255,255,255,.2);border:2px solid rgba(255,255,255,.5);border-radius:50%;font-size:2rem;color:#FFF;display:flex;justify-content:center;align-items:center;backdrop-filter:blur(5px)}
+.control-btn:active{background:rgba(255,255,255,.5)}
+.grid-list{width:100%;max-width:400px;margin-top:10px;max-height:60vh;overflow-y:auto;padding-bottom:20px}
+.list-item{background:rgba(255,255,255,.1);border:2px solid rgba(255,255,255,.2);border-radius:15px;padding:15px;margin-bottom:15px;display:flex;flex-direction:column;align-items:center}
+.car-preview{width:80px;height:120px;margin:10px 0;position:relative}
+.car-name{font-size:1.2rem;font-weight:bold;color:#FFF}
+.car-price{color:#FFD700;font-size:1.1rem;margin:5px 0}
+.achievement-popup{position:absolute;top:-100px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#FFD700,#FFA500);color:#000;padding:15px 25px;border-radius:30px;font-weight:bold;z-index:100;transition:top .5s ease;box-shadow:0 5px 15px rgba(255,215,0,.5);white-space:nowrap}
+.show-popup{top:20px}
+#pause-btn{position:absolute;top:10px;right:10px;width:40px;height:40px;background:rgba(0,0,0,.5);color:#FFF;border:2px solid #FFF;border-radius:50%;font-size:1.2rem;z-index:6;display:flex;justify-content:center;align-items:center}
+.powerup-hud{position:absolute;top:60px;left:15px;color:#FFF;font-weight:bold;font-size:1rem;text-shadow:1px 1px 2px #000}
+.stats{text-align:left;background:rgba(0,0,0,.5);padding:15px;border-radius:15px;margin-bottom:20px;width:100%;max-width:300px}
+.stats p{margin:5px 0;font-size:1.2rem}.stats span{color:var(--secondary);font-weight:bold}
+.record{color:#FFD700;font-weight:bold;font-size:1.5rem;margin-top:10px;animation:pulse 1s infinite alternate;display:none}
+@keyframes pulse{from{transform:scale(1)}to{transform:scale(1.1)}}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--secondary);border-radius:5px}
+</style>
+</head>
+<body>
+<div id="game-container">
+<canvas id="gameCanvas"></canvas>
+<div id="hud" style="display:none">
+<div class="top-bar">
+<div id="hud-score">SCORE: 0<br><span style="font-size:.8rem">DIST: 0m</span></div>
+<div id="hud-coins">🪙 0</div>
+</div>
+<div id="pause-btn">||</div>
+<div id="powerup-hud" class="powerup-hud"></div>
+<div class="controls">
+<div class="control-btn" id="btn-left">◄</div>
+<div class="control-btn" id="btn-right">►</div>
+</div>
+</div>
+
+<div id="screen-home" class="screen active">
+<h1>AIDY<br><span>2D RUSH</span></h1>
+<p style="margin-bottom:20px;font-weight:bold;color:#FFD700">🪙 <span id="home-coins">0</span> &nbsp;&nbsp; 🏆 <span id="home-best">0</span></p>
+<button class="btn" onclick="startGame()">PLAY</button>
+<button class="btn secondary" onclick="showScreen('screen-garage')">GARAGE</button>
+<button class="btn secondary" onclick="showScreen('screen-achievements')">ACHIEVEMENTS</button>
+<button class="btn secondary" onclick="showScreen('screen-missions')">MISSIONS</button>
+<button class="btn secondary" onclick="showScreen('screen-howto')">HOW TO PLAY</button>
+<button class="btn secondary" id="btn-sound" onclick="toggleSound()">🔊 SOUND ON</button>
+</div>
+
+<div id="screen-pause" class="screen">
+<h2>PAUSED</h2><button class="btn" onclick="resumeGame()">RESUME</button>
+<button class="btn secondary" onclick="restartGame()">RESTART</button><button class="btn secondary" onclick="goToHome()">HOME</button>
+</div>
+
+<div id="screen-gameover" class="screen">
+<h1 style="color:#FFF">GAME OVER</h1><div class="record" id="new-record-msg">🏆 NEW BEST!</div>
+<div class="stats">
+<p>SCORE: <span id="go-score">0</span></p><p>BEST: <span id="go-best">0</span></p>
+<p>DISTANCE: <span id="go-dist">0</span>m</p><p>COINS EARNED: <span id="go-coins">0</span></p>
+</div>
+<button class="btn" onclick="restartGame()">RESTART</button><button class="btn secondary" onclick="showScreen('screen-garage')">GARAGE</button><button class="btn secondary" onclick="goToHome()">HOME</button>
+</div>
+
+<div id="screen-garage" class="screen">
+<h2>GARAGE</h2><p style="color:#FFD700;font-weight:bold;font-size:1.2rem;margin-bottom:10px">🪙 <span id="garage-coins">0</span></p>
+<div class="grid-list" id="garage-list"></div><button class="btn" onclick="goToHome()">BACK</button>
+</div>
+
+<div id="screen-achievements" class="screen">
+<h2>ACHIEVEMENTS</h2><div class="grid-list" id="achievements-list"></div><button class="btn" onclick="goToHome()">BACK</button>
+</div>
+
+<div id="screen-missions" class="screen">
+<h2>MISSIONS</h2><div class="grid-list" id="missions-list"></div><button class="btn" onclick="goToHome()">BACK</button>
+</div>
+
+<div id="screen-howto" class="screen">
+<h2>HOW TO PLAY</h2>
+<div class="stats" style="max-width:90%;font-size:1rem;line-height:1.5">
+<p>• Tap <b>LEFT/RIGHT</b> or <b>SWIPE</b> to change lanes.</p>
+<p>• Avoid enemy traffic to survive.</p><p>• Collect <b>🪙 Coins</b> to buy cars.</p>
+<p>• <b>🛡️ Shield:</b> Protects from 1 crash.</p><p>• <b>🧲 Magnet:</b> Attracts coins.</p>
+<p>• <b>⚡ Nitro:</b> Double speed & score.</p><p>• Survive to increase score & difficulty!</p>
+</div><button class="btn" onclick="goToHome()">BACK</button>
+</div>
+<div id="achievement-popup" class="achievement-popup">🏆 Achievement Unlocked!</div>
+</div>
+
+<script>
+const canvas=document.getElementById('gameCanvas'),ctx=canvas.getContext('2d');
+let w,h,laneW;
+function resize(){w=canvas.width=canvas.parentElement.clientWidth;h=canvas.height=canvas.parentElement.clientHeight;laneW=w/3}
+window.addEventListener('resize',resize);resize();
+
+const defaultData={coins:0,bestScore:0,selectedCar:0,ownedCars:[0],sound:true,playTime:0,achievements:{},missions:{}};
+let gameData=JSON.parse(localStorage.getItem('aidyRushData'))||defaultData;
+function saveData(){localStorage.setItem('aidyRushData',JSON.stringify(gameData))}
+
+const CARS=[
+{id:0,name:"Starter Blue",price:0,c1:"#1E90FF",c2:"#0000CD"},
+{id:1,name:"Red Speedster",price:100,c1:"#FF3333",c2:"#B22222"},
+{id:2,name:"Yellow Lightning",price:250,c1:"#FFD700",c2:"#DAA520"},
+{id:3,name:"Green Racer",price:500,c1:"#32CD32",c2:"#008000"},
+{id:4,name:"Purple Phantom",price:1000,c1:"#9370DB",c2:"#4B0082"},
+{id:5,name:"Black Shadow",price:2000,c1:"#444",c2:"#111"},
+{id:6,name:"Golden Racer",price:5000,c1:"#FFEA00",c2:"#B8860B"}];
+
+const ACHVS=[
+{id:'first',title:"🏆 FIRST RACE",desc:"Complete first race"},
+{id:'s100',title:"🏆 SCORE 100",desc:"Reach 100 score"},
+{id:'s500',title:"🏆 SCORE 500",desc:"Reach 500 score"},
+{id:'s1000',title:"🏆 SCORE 1000",desc:"Reach 1000 score"},
+{id:'c100',title:"🪙 COIN COLLECTOR",desc:"Collect 100 total coins"},
+{id:'c500',title:"🪙 COIN MASTER",desc:"Collect 500 total coins"},
+{id:'cars3',title:"🚗 CAR ENTHUSIAST",desc:"Unlock 3 cars"},
+{id:'time5',title:"🏁 SURVIVOR",desc:"Play total 5 minutes"}];
+
+const MISSIONS=[
+{id:'m1',title:"Collect 20 coins in 1 run",target:20,reward:50,type:'coins'},
+{id:'m2',title:"Score 100 points",target:100,reward:75,type:'score'},
+{id:'m3',title:"Survive 60 seconds",target:60,reward:100,type:'time'},
+{id:'m4',title:"Collect 50 coins in 1 run",target:50,reward:150,type:'coins'}];
+
+let audioCtx;
+function initAudio(){if(!audioCtx)audioCtx=new(window.AudioContext||window.webkitAudioContext)();if(audioCtx.state==='suspended')audioCtx.resume()}
+function playSound(type){
+if(!gameData.sound||!audioCtx)return;
+const osc=audioCtx.createOscillator(),gain=audioCtx.createGain();osc.connect(gain);gain.connect(audioCtx.destination);
+const now=audioCtx.currentTime;
+if(type==='move'){osc.type='sine';osc.frequency.setValueAtTime(300,now);osc.frequency.exponentialRampToValueAtTime(100,now+.1);gain.gain.setValueAtTime(.3,now);gain.gain.exponentialRampToValueAtTime(.01,now+.1);osc.start(now);osc.stop(now+.1)}
+else if(type==='coin'){osc.type='sine';osc.frequency.setValueAtTime(800,now);osc.frequency.setValueAtTime(1200,now+.05);gain.gain.setValueAtTime(.3,now);gain.gain.linearRampToValueAtTime(0,now+.15);osc.start(now);osc.stop(now+.15)}
+else if(type==='crash'){osc.type='sawtooth';osc.frequency.setValueAtTime(100,now);osc.frequency.exponentialRampToValueAtTime(10,now+.3);gain.gain.setValueAtTime(.5,now);gain.gain.exponentialRampToValueAtTime(.01,now+.3);osc.start(now);osc.stop(now+.3)}
+else if(type==='powerup'){osc.type='square';osc.frequency.setValueAtTime(400,now);osc.frequency.linearRampToValueAtTime(800,now+.2);gain.gain.setValueAtTime(.2,now);gain.gain.linearRampToValueAtTime(0,now+.3);osc.start(now);osc.stop(now+.3)}
+else if(type==='achieve'){osc.type='sine';osc.frequency.setValueAtTime(500,now);osc.frequency.setValueAtTime(650,now+.1);osc.frequency.setValueAtTime(800,now+.2);gain.gain.setValueAtTime(.3,now);gain.gain.linearRampToValueAtTime(0,now+.4);osc.start(now);osc.stop(now+.4)}}
+
+let state='HOME',lastTime=0,runTime=0,score=0,distance=0,runCoins=0,speed=300,baseSpeed=300,bgOffsetY=0;
+let envType=0;
+let envColors=[
+{grass:'#3CB371',road:'#555',lines:'#FFF',sky:'#87CEEB'},
+{grass:'#0B2211',road:'#222',lines:'#CCAA00',sky:'#000011'},
+{grass:'#EDC9AF',road:'#706050',lines:'#FFF',sky:'#FFDAB9'}];
+let player={lane:1,x:0,y:0,w:50,h:90,type:0,shield:0,magnet:0,nitro:0};
+let enemies=[],coins=[],powerups=[],particles=[],spawnTimer=0,coinTimer=0,powerTimer=0;
+
+function drawCar(c,x,y,cw,ch,carDef){
+c.save();c.translate(x,y);c.fillStyle='rgba(0,0,0,.5)';c.fillRect(5,5,cw,ch);
+c.fillStyle=carDef.c1;c.beginPath();c.roundRect(0,0,cw,ch,10);c.fill();
+c.fillStyle=carDef.c2;c.fillRect(cw*.2,0,cw*.15,ch);c.fillRect(cw*.65,0,cw*.15,ch);
+c.fillStyle='#111';c.beginPath();c.roundRect(cw*.1,ch*.25,cw*.8,ch*.2,5);c.fill();
+c.beginPath();c.roundRect(cw*.15,ch*.75,cw*.7,ch*.15,3);c.fill();
+c.fillStyle=envType===1?'#FFFF99':'#FFF';c.beginPath();c.arc(cw*.2,ch*.05,4,0,Math.PI*2);c.fill();c.beginPath();c.arc(cw*.8,ch*.05,4,0,Math.PI*2);c.fill();
+c.fillStyle='#F00';c.fillRect(cw*.1,ch*.95,10,5);c.fillRect(cw*.7,ch*.95,10,5);
+c.fillStyle='#000';c.fillRect(-2,ch*.15,4,15);c.fillRect(cw-2,ch*.15,4,15);c.fillRect(-2,ch*.7,4,15);c.fillRect(cw-2,ch*.7,4,15);
+if(envType===1){c.fillStyle='rgba(255,255,150,.2)';c.beginPath();c.moveTo(cw*.2,0);c.lineTo(-cw,-ch);c.lineTo(cw,-ch);c.fill();c.beginPath();c.moveTo(cw*.8,0);c.lineTo(cw,-ch);c.lineTo(cw*2,-ch);c.fill()}c.restore()}
+
+function drawEnemy(c,x,y,cw,ch,type){
+c.save();c.translate(x,y);c.fillStyle='rgba(0,0,0,.5)';c.fillRect(5,5,cw,ch);
+const colors=['#F55','#5F5','#55F','#F90','#F0F','#0FF'];c.fillStyle=colors[type%colors.length];
+if(type%2===0){c.fillRect(0,0,cw,ch);c.fillStyle='#333';c.fillRect(0,0,cw,ch*.3);c.fillStyle='#111';c.fillRect(cw*.1,ch*.3,cw*.8,10)}
+else{c.beginPath();c.roundRect(0,0,cw,ch,8);c.fill();c.fillStyle='#111';c.fillRect(cw*.1,ch*.2,cw*.8,ch*.15);c.fillRect(cw*.15,ch*.65,cw*.7,ch*.15)}
+c.fillStyle='#F00';c.fillRect(cw*.1,ch-5,8,5);c.fillRect(cw-cw*.1-8,ch-5,8,5);c.restore()}
+
+function resetGame(){
+score=0;distance=0;runCoins=0;runTime=0;baseSpeed=300;speed=baseSpeed;envType=0;bgOffsetY=0;player.lane=1;
+player.w=w*.15;player.h=player.w*1.8;if(player.w>60){player.w=60;player.h=108}
+player.x=laneW*player.lane+(laneW-player.w)/2;player.y=h-player.h-80;player.type=gameData.selectedCar;
+player.shield=0;player.magnet=0;player.nitro=0;enemies=[];coins=[];powerups=[];particles=[];spawnTimer=0;coinTimer=0;powerTimer=0;updateHUD()}
+
+function spawnEnemy(){
+let l=Math.floor(Math.random()*3);
+if(enemies.length>=2){let e1=enemies[enemies.length-1],e2=enemies[enemies.length-2];
+if(e1.y<0&&e2.y<0&&e1.lane!==e2.lane)l=[0,1,2].find(x=>x!==e1.lane&&x!==e2.lane)}
+let ew=player.w*(.9+Math.random()*.3),eh=ew*(1.5+Math.random()*.8);
+enemies.push({lane:l,x:laneW*l+(laneW-ew)/2,y:-eh-50,w:ew,h:eh,type:Math.floor(Math.random()*6),v:Math.random()*100+50})}
+function spawnCoin(){let l=Math.floor(Math.random()*3);coins.push({lane:l,x:laneW*l+laneW/2,y:-30,r:15})}
+function spawnPowerUp(){let l=Math.floor(Math.random()*3),types=['shield','magnet','nitro'],type=types[Math.floor(Math.random()*types.length)];powerups.push({lane:l,x:laneW*l+laneW/2,y:-30,r:20,type})}
+function createParticles(x,y,color){for(let i=0;i<15;i++)particles.push({x,y,vx:(Math.random()-.5)*200,vy:(Math.random()-.5)*200,life:1,color})}
+function checkCollision(r1,r2){let buffer=5;return !(r1.x+buffer>r2.x+r2.w-buffer||r1.x+r1.w-buffer<r2.x+buffer||r1.y+buffer>r2.y+r2.h-buffer||r1.y+r1.h-buffer<r2.y+buffer)}
+
+function update(dt){
+if(state!=='GAME')return;runTime+=dt;baseSpeed=300+score*.5;if(baseSpeed>800)baseSpeed=800;speed=player.nitro>0?baseSpeed*1.5:baseSpeed;
+if(distance>2000&&distance<4000)envType=1;else if(distance>4000)envType=2;else envType=0;
+bgOffsetY+=speed*dt;if(bgOffsetY>h)bgOffsetY-=h;distance+=(speed*dt)/50;score+=(speed*dt)/100*(player.nitro>0?2:1);
+spawnTimer-=dt;if(spawnTimer<=0){spawnEnemy();let freq=1.5-score/1000;if(freq<.4)freq=.4;spawnTimer=freq+Math.random()*.5}
+coinTimer-=dt;if(coinTimer<=0){spawnCoin();coinTimer=1+Math.random()*1.5}
+powerTimer-=dt;if(powerTimer<=0){spawnPowerUp();powerTimer=15+Math.random()*10}
+let targetX=laneW*player.lane+(laneW-player.w)/2;player.x+=(targetX-player.x)*15*dt;
+if(player.shield>0)player.shield-=dt;if(player.magnet>0)player.magnet-=dt;if(player.nitro>0)player.nitro-=dt;
+
+for(let i=enemies.length-1;i>=0;i--){let e=enemies[i];e.y+=(speed-e.v)*dt;if(e.y>h+100){enemies.splice(i,1);continue}
+if(checkCollision(player,e)){if(player.shield>0){player.shield=0;playSound('powerup');createParticles(e.x+e.w/2,e.y+e.h/2,'#00E5FF');enemies.splice(i,1)}else{gameOver();return}}}
+for(let i=coins.length-1;i>=0;i--){let c=coins[i];
+if(player.magnet>0){let dx=player.x+player.w/2-c.x,dy=player.y+player.h/2-c.y,d=Math.sqrt(dx*dx+dy*dy);if(d<300){c.x+=(dx/d)*500*dt;c.y+=(dy/d)*500*dt}else c.y+=speed*dt}else c.y+=speed*dt;
+if(c.y>h+50){coins.splice(i,1);continue}let cx=player.x+player.w/2,cy=player.y+player.h/2,d=Math.sqrt((c.x-cx)**2+(c.y-cy)**2);
+if(d<player.w/2+c.r){runCoins++;gameData.coins++;playSound('coin');createParticles(c.x,c.y,'#FFD700');coins.splice(i,1)}}
+for(let i=powerups.length-1;i>=0;i--){let p=powerups[i];p.y+=speed*dt;if(p.y>h+50){powerups.splice(i,1);continue}
+let cx=player.x+player.w/2,cy=player.y+player.h/2,d=Math.sqrt((p.x-cx)**2+(p.y-cy)**2);
+if(d<player.w/2+p.r){if(p.type==='shield')player.shield=10;if(p.type==='magnet')player.magnet=10;if(p.type==='nitro')player.nitro=5;playSound('powerup');createParticles(p.x,p.y,'#FFF');powerups.splice(i,1)}}
+for(let i=particles.length-1;i>=0;i--){let p=particles[i];p.x+=p.vx*dt;p.y+=p.vy*dt;p.life-=dt*2;if(p.life<=0)particles.splice(i,1)}
+updateHUD();checkMissionsRun()}
+
+function draw(){
+if(['HOME','GARAGE','ACHIEVEMENTS','HOWTO','MISSIONS'].includes(state)){ctx.fillStyle='#111';ctx.fillRect(0,0,w,h);drawCar(ctx,w/2-40,h/2-60,80,120,CARS[gameData.selectedCar]);return}
+let env=envColors[envType];ctx.fillStyle=env.grass;ctx.fillRect(0,0,w,h);let roadW=w*.9,roadX=(w-roadW)/2;ctx.fillStyle=env.road;ctx.fillRect(roadX,0,roadW,h);
+ctx.fillStyle=env.lines;ctx.lineWidth=4;let dashLen=40,gapLen=40,totalDash=dashLen+gapLen,startY=bgOffsetY%totalDash-totalDash;
+for(let i=1;i<3;i++){let lx=roadX+(roadW/3)*i;for(let y=startY;y<h;y+=totalDash)ctx.fillRect(lx-2,y,4,dashLen)}
+ctx.fillStyle=envType===0?'#FFF':'#888';for(let y=startY;y<h;y+=totalDash){ctx.fillRect(roadX,y,6,dashLen);ctx.fillRect(roadX+roadW-6,y,6,dashLen)}
+for(let c of coins){ctx.beginPath();ctx.arc(c.x,c.y,c.r,0,Math.PI*2);ctx.fillStyle='#FFD700';ctx.fill();ctx.lineWidth=2;ctx.strokeStyle='#DAA520';ctx.stroke();ctx.fillStyle='#FFF';ctx.font='14px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('$',c.x,c.y)}
+for(let p of powerups){ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.type==='shield'?'#00E5FF':p.type==='magnet'?'#FF3366':'#FFEA00';ctx.fill();ctx.fillStyle='#FFF';ctx.font='20px Arial';ctx.fillText(p.type==='shield'?'🛡️':p.type==='magnet'?'🧲':'⚡',p.x,p.y)}
+for(let e of enemies)drawEnemy(ctx,e.x,e.y,e.w,e.h,e.type);drawCar(ctx,player.x,player.y,player.w,player.h,CARS[player.type]);
+if(player.shield>0){ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,player.h*.7,0,Math.PI*2);ctx.strokeStyle=`rgba(0,229,255,${Math.abs(Math.sin(runTime*5))})`;ctx.lineWidth=4;ctx.stroke()}
+if(player.magnet>0){ctx.beginPath();ctx.arc(player.x+player.w/2,player.y+player.h/2,player.h*1.2,0,Math.PI*2);ctx.strokeStyle='rgba(255,51,102,.3)';ctx.lineWidth=2;ctx.stroke()}
+if(player.nitro>0){ctx.fillStyle='rgba(255,255,255,.8)';ctx.fillRect(player.x+5,player.y+player.h,5,30+Math.random()*20);ctx.fillRect(player.x+player.w-10,player.y+player.h,5,30+Math.random()*20);ctx.fillStyle='rgba(255,255,255,.3)';for(let i=0;i<5;i++)ctx.fillRect(Math.random()*w,Math.random()*h,2,50+Math.random()*100)}
+for(let p of particles){ctx.fillStyle=p.color;ctx.globalAlpha=p.life;ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill()}ctx.globalAlpha=1;
+if(envType===1){ctx.fillStyle='rgba(0,0,20,.5)';ctx.fillRect(0,0,w,h)}}
+
+function gameLoop(time){let dt=(time-lastTime)/1000;lastTime=time;if(dt>.1)dt=.1;update(dt);draw();requestAnimationFrame(gameLoop)}
+
+function showScreen(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));if(id)document.getElementById(id).classList.add('active');if(id==='screen-garage')buildGarage();if(id==='screen-achievements')buildAchievements();if(id==='screen-missions')buildMissions()}
+function startGame(){initAudio();state='GAME';resetGame();showScreen('');document.getElementById('hud').style.display='block';playSound('move');lastTime=performance.now()}
+function pauseGame(){if(state!=='GAME')return;state='PAUSE';document.getElementById('hud').style.display='none';showScreen('screen-pause');playSound('move')}
+function resumeGame(){state='GAME';document.getElementById('hud').style.display='block';showScreen('');lastTime=performance.now();playSound('move')}
+function restartGame(){startGame()}
+function goToHome(){state='HOME';document.getElementById('hud').style.display='none';document.getElementById('home-coins').innerText=gameData.coins;document.getElementById('home-best').innerText=gameData.bestScore;showScreen('screen-home');playSound('move')}
+function gameOver(){state='OVER';playSound('crash');document.getElementById('hud').style.display='none';let finalScore=Math.floor(score),finalDist=Math.floor(distance);gameData.playTime+=runTime;document.getElementById('go-score').innerText=finalScore;document.getElementById('go-dist').innerText=finalDist;document.getElementById('go-coins').innerText=runCoins;let isNewBest=false;if(finalScore>gameData.bestScore){gameData.bestScore=finalScore;isNewBest=true}document.getElementById('go-best').innerText=gameData.bestScore;document.getElementById('new-record-msg').style.display=isNewBest?'block':'none';checkAchievementsAndMissionsEnd(finalScore,runCoins);saveData();showScreen('screen-gameover')}
+function updateHUD(){document.getElementById('hud-score').innerHTML=`SCORE: ${Math.floor(score)}<br><span style="font-size:.8rem">DIST: ${Math.floor(distance)}m</span>`;document.getElementById('hud-coins').innerText=`🪙 ${gameData.coins}`;let pText='';if(player.shield>0)pText+=`🛡️ ${Math.ceil(player.shield)}s `;if(player.magnet>0)pText+=`🧲 ${Math.ceil(player.magnet)}s `;if(player.nitro>0)pText+=`⚡ ${Math.ceil(player.nitro)}s `;document.getElementById('powerup-hud').innerText=pText}
+function moveLeft(){if(state!=='GAME'||player.lane<=0)return;player.lane--;playSound('move')}
+function moveRight(){if(state!=='GAME'||player.lane>=2)return;player.lane++;playSound('move')}
+document.getElementById('btn-left').addEventListener('touchstart',e=>{e.preventDefault();moveLeft()});document.getElementById('btn-right').addEventListener('touchstart',e=>{e.preventDefault();moveRight()});document.getElementById('pause-btn').addEventListener('touchstart',e=>{e.preventDefault();pauseGame()});
+let swipeX=0,touchReady=true;window.addEventListener('touchstart',e=>{swipeX=e.touches[0].clientX;touchReady=true});window.addEventListener('touchmove',e=>{if(!touchReady||state!=='GAME')return;let diff=e.touches[0].clientX-swipeX;if(diff<-50){moveLeft();touchReady=false}else if(diff>50){moveRight();touchReady=false}});
+
+function buildGarage(){document.getElementById('garage-coins').innerText=gameData.coins;const list=document.getElementById('garage-list');list.innerHTML='';CARS.forEach(car=>{let isOwned=gameData.ownedCars.includes(car.id),isSelected=gameData.selectedCar===car.id,item=document.createElement('div');item.className='list-item';let cCanvas=document.createElement('canvas');cCanvas.width=60;cCanvas.height=100;cCanvas.className='car-preview';drawCar(cCanvas.getContext('2d'),5,5,50,90,car);let html=`<div class="car-name">${car.name}</div>`;item.appendChild(cCanvas);if(isOwned){html+=isSelected?`<button class="btn secondary" style="min-width:100px;padding:10px">SELECTED</button>`:`<button class="btn" style="min-width:100px;padding:10px" onclick="selectCar(${car.id})">SELECT</button>`}else html+=`<div class="car-price">🪙 ${car.price}</div><button class="btn ${gameData.coins>=car.price?'':'disabled'}" style="min-width:100px;padding:10px" onclick="buyCar(${car.id},${car.price})">BUY</button>`;item.innerHTML=html;item.insertBefore(cCanvas,item.childNodes[1]);list.appendChild(item)})}
+function buyCar(id,price){initAudio();if(gameData.coins>=price&&!gameData.ownedCars.includes(id)){gameData.coins-=price;gameData.ownedCars.push(id);playSound('achieve');checkAchievementsRun();saveData();buildGarage()}}
+function selectCar(id){initAudio();gameData.selectedCar=id;playSound('move');saveData();buildGarage()}
+function unlockAchieve(id){if(!gameData.achievements[id]){gameData.achievements[id]=true;playSound('achieve');let a=ACHVS.find(x=>x.id===id),pop=document.getElementById('achievement-popup');pop.innerText=a.title;pop.classList.add('show-popup');setTimeout(()=>pop.classList.remove('show-popup'),3000);saveData()}}
+function checkAchievementsRun(){if(gameData.coins>=100)unlockAchieve('c100');if(gameData.coins>=500)unlockAchieve('c500');if(gameData.ownedCars.length>=3)unlockAchieve('cars3');if(gameData.playTime>=300)unlockAchieve('time5')}
+function checkAchievementsAndMissionsEnd(fScore,fCoins){unlockAchieve('first');if(fScore>=100)unlockAchieve('s100');if(fScore>=500)unlockAchieve('s500');if(fScore>=1000)unlockAchieve('s1000');checkAchievementsRun();MISSIONS.forEach(m=>{if(!gameData.missions[m.id]){let complete=false;if(m.type==='coins'&&fCoins>=m.target)complete=true;if(m.type==='score'&&fScore>=m.target)complete=true;if(complete){gameData.missions[m.id]=true;gameData.coins+=m.reward;unlockAchieve('first');let pop=document.getElementById('achievement-popup');pop.innerText='MISSION COMPLETE! +'+m.reward+'🪙';pop.classList.add('show-popup');setTimeout(()=>pop.classList.remove('show-popup'),3000)}}})}
+function checkMissionsRun(){if(state!=='GAME')return;MISSIONS.forEach(m=>{if(!gameData.missions[m.id]&&m.type==='time'&&runTime>=m.target){gameData.missions[m.id]=true;gameData.coins+=m.reward;playSound('achieve');let pop=document.getElementById('achievement-popup');pop.innerText='MISSION COMPLETE! +'+m.reward+'🪙';pop.classList.add('show-popup');setTimeout(()=>pop.classList.remove('show-popup'),3000);saveData()}})}
+function buildAchievements(){const list=document.getElementById('achievements-list');list.innerHTML='';ACHVS.forEach(a=>{let isUn=gameData.achievements[a.id],item=document.createElement('div');item.className='list-item';item.style.opacity=isUn?'1':'.5';item.innerHTML=`<div class="car-name">${a.title}</div><div style="font-size:.9rem;margin-top:5px">${a.desc}</div><div style="margin-top:10px;font-weight:bold;color:${isUn?'#0F0':'#888'}">${isUn?'UNLOCKED':'LOCKED'}</div>`;list.appendChild(item)})}
+function buildMissions(){const list=document.getElementById('missions-list');list.innerHTML='';MISSIONS.forEach(m=>{let isCom=gameData.missions[m.id],item=document.createElement('div');item.className='list-item';item.innerHTML=`<div class="car-name">${m.title}</div><div class="car-price">Reward: 🪙 ${m.reward}</div><div style="margin-top:10px;font-weight:bold;color:${isCom?'#0F0':'#FF3366'}">${isCom?'COMPLETED':'IN PROGRESS'}</div>`;list.appendChild(item)})}
+function toggleSound(){gameData.sound=!gameData.sound;document.getElementById('btn-sound').innerText=gameData.sound?'🔊 SOUND ON':'🔇 SOUND OFF';saveData();if(gameData.sound)initAudio()}
+function initBoot(){document.getElementById('home-coins').innerText=gameData.coins;document.getElementById('home-best').innerText=gameData.bestScore;document.getElementById('btn-sound').innerText=gameData.sound?'🔊 SOUND ON':'🔇 SOUND OFF'}
+initBoot();requestAnimationFrame(gameLoop);
+</script>
+</body>
+</html>
