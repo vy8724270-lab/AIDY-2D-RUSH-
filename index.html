@@ -40,7 +40,178 @@ h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
 .stats p{margin:5px 0;font-size:1.2rem}.stats span{color:var(--secondary);font-weight:bold}
 .record{color:#FFD700;font-weight:bold;font-size:1.5rem;margin-top:10px;animation:pulse 1s infinite alternate;display:none}
 @keyframes pulse{from{transform:scale(1)}to{transform:scale(1.1)}}
-::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--secondary);border-radius:5px}
+::-webkit-scrollbar{width:5px}::-webkit-scrollbar-thumb{background:var(--secondary);border-radius:5px} 
+/* ===== AIDY 2D RUSH - MODERN HOME SCREEN ===== */
+#screen-home{
+  background:
+    radial-gradient(circle at 50% 18%,rgba(0,229,255,.16),transparent 28%),
+    linear-gradient(180deg,#080b16 0%,#111827 55%,#05070d 100%);
+  justify-content:flex-start;
+  padding:34px 18px 24px;
+  overflow-y:auto;
+}
+
+.home-logo{
+  font-size:clamp(2.7rem,12vw,4rem);
+  line-height:.88;
+  margin:10px 0 8px;
+  letter-spacing:3px;
+  font-style:italic;
+  text-transform:uppercase;
+  color:#fff;
+  text-shadow:
+    0 0 8px rgba(0,229,255,.8),
+    0 0 22px rgba(0,229,255,.35),
+    4px 4px 0 #111;
+}
+
+.home-logo span{
+  display:block;
+  color:var(--primary);
+  text-shadow:
+    0 0 8px rgba(255,51,102,.9),
+    0 0 22px rgba(255,51,102,.4),
+    4px 4px 0 #111;
+}
+
+.home-subtitle{
+  color:rgba(255,255,255,.65);
+  font-size:.75rem;
+  letter-spacing:4px;
+  font-weight:700;
+  margin-bottom:22px;
+}
+
+.home-stats{
+  width:100%;
+  max-width:380px;
+  display:flex;
+  gap:10px;
+  margin-bottom:22px;
+}
+
+.home-stat{
+  flex:1;
+  padding:12px 8px;
+  border:1px solid rgba(255,255,255,.18);
+  border-radius:16px;
+  background:rgba(255,255,255,.07);
+  backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px);
+  box-shadow:0 8px 25px rgba(0,0,0,.25);
+}
+
+.home-stat-label{
+  display:block;
+  color:rgba(255,255,255,.55);
+  font-size:.68rem;
+  letter-spacing:1px;
+  font-weight:700;
+  margin-bottom:4px;
+}
+
+.home-stat-value{
+  display:block;
+  font-size:1.25rem;
+  font-weight:900;
+  color:#fff;
+}
+
+.home-stat.coins .home-stat-value{
+  color:#FFD700;
+}
+
+.home-stat.best .home-stat-value{
+  color:var(--secondary);
+}
+
+#screen-home .btn{
+  width:100%;
+  max-width:330px;
+  min-width:0;
+  margin:6px 0;
+  padding:13px 20px;
+  border-radius:16px;
+  font-size:1rem;
+  letter-spacing:1px;
+}
+
+#screen-home .play-btn{
+  position:relative;
+  padding:17px 20px;
+  font-size:1.3rem;
+  letter-spacing:2px;
+  background:linear-gradient(135deg,#FF3366,#C41448);
+  border:2px solid rgba(255,255,255,.9);
+  box-shadow:
+    0 8px 25px rgba(255,51,102,.35),
+    inset 0 1px 0 rgba(255,255,255,.35);
+}
+
+#screen-home .play-btn::after{
+  content:"▶";
+  margin-left:9px;
+  font-size:.9em;
+}
+
+#screen-home .menu-btn{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.2);
+  box-shadow:0 5px 16px rgba(0,0,0,.2);
+}
+
+#screen-home .menu-btn:active,
+#screen-home .play-btn:active{
+  transform:scale(.96);
+}
+
+#screen-home .sound-btn{
+  margin-top:12px;
+  background:rgba(0,229,255,.08);
+  border:1px solid rgba(0,229,255,.35);
+  color:var(--secondary);
+  font-size:.85rem;
+  padding:10px 18px;
+}
+
+.home-road-lines{
+  width:100%;
+  max-width:330px;
+  height:3px;
+  margin:4px 0 12px;
+  background:linear-gradient(
+    90deg,
+    transparent,
+    var(--secondary),
+    var(--primary),
+    transparent
+  );
+  opacity:.7;
+  border-radius:10px;
+}
+
+@media(max-height:650px){
+  #screen-home{
+    padding-top:18px;
+  }
+
+  .home-logo{
+    font-size:2.5rem;
+  }
+
+  .home-subtitle{
+    margin-bottom:10px;
+  }
+
+  .home-stats{
+    margin-bottom:10px;
+  }
+
+  #screen-home .btn{
+    padding:10px 18px;
+    margin:4px 0;
+  }
+}
 </style>
 </head>
 <body>
