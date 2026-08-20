@@ -456,7 +456,10 @@ function checkMissionsRun(){if(state!=='GAME')return;MISSIONS.forEach(m=>{if(!ga
 function buildAchievements(){const list=document.getElementById('achievements-list');list.innerHTML='';ACHVS.forEach(a=>{let isUn=gameData.achievements[a.id],item=document.createElement('div');item.className='list-item';item.style.opacity=isUn?'1':'.5';item.innerHTML=`<div class="car-name">${a.title}</div><div style="font-size:.9rem;margin-top:5px">${a.desc}</div><div style="margin-top:10px;font-weight:bold;color:${isUn?'#0F0':'#888'}">${isUn?'UNLOCKED':'LOCKED'}</div>`;list.appendChild(item)})}
 function buildMissions(){const list=document.getElementById('missions-list');list.innerHTML='';MISSIONS.forEach(m=>{let isCom=gameData.missions[m.id],item=document.createElement('div');item.className='list-item';item.innerHTML=`<div class="car-name">${m.title}</div><div class="car-price">Reward: 🪙 ${m.reward}</div><div style="margin-top:10px;font-weight:bold;color:${isCom?'#0F0':'#FF3366'}">${isCom?'COMPLETED':'IN PROGRESS'}</div>`;list.appendChild(item)})}
 function toggleSound(){gameData.sound=!gameData.sound;document.getElementById('btn-sound').innerText=gameData.sound?'🔊 SOUND ON':'🔇 SOUND OFF';saveData();if(gameData.sound)initAudio()}
-function initBoot(){document.getElementById('home-coins').innerText=gameData.coins;document.getElementById('home-best').innerText=gameData.bestScore;document.getElementById('btn-sound').innerText=gameData.sound?'🔊 SOUND ON':'🔇 SOUND OFF'}
+function initBoot(){
+  document.getElementById('home-coins').innerText=gameData.coins;
+  document.getElementById('home-best').innerText=gameData.bestScore;
+}
 initBoot();requestAnimationFrame(gameLoop);
 </script>
 </body>
