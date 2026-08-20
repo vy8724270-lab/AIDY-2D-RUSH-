@@ -231,14 +231,37 @@ h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
 </div>
 
 <div id="screen-home" class="screen active">
-<h1>AIDY<br><span>2D RUSH</span></h1>
-<p style="margin-bottom:20px;font-weight:bold;color:#FFD700">🪙 <span id="home-coins">0</span> &nbsp;&nbsp; 🏆 <span id="home-best">0</span></p>
-<button class="btn" onclick="startGame()">PLAY</button>
-<button class="btn secondary" onclick="showScreen('screen-garage')">GARAGE</button>
-<button class="btn secondary" onclick="showScreen('screen-achievements')">ACHIEVEMENTS</button>
-<button class="btn secondary" onclick="showScreen('screen-missions')">MISSIONS</button>
-<button class="btn secondary" onclick="showScreen('screen-howto')">HOW TO PLAY</button>
-<button class="btn secondary" id="btn-sound" onclick="toggleSound()">🔊 SOUND ON</button>
+
+  <div class="home-logo">
+    AIDY<br>
+    <span>2D RUSH</span>
+  </div>
+
+  <div class="home-subtitle">
+    RACE • DODGE • SURVIVE
+  </div>
+
+  <div class="home-stats">
+    <div>🪙 <span id="home-coins">0</span></div>
+    <div>🏆 <span id="home-best">0</span></div>
+  </div>
+
+  <button class="btn" onclick="startGame()">
+    ▶ PLAY
+  </button>
+
+  <button class="btn" onclick="openGarage()">
+    🚗 GARAGE
+  </button>
+
+  <button class="btn" onclick="showAchievements()">
+    🏆 ACHIEVEMENTS
+  </button>
+
+  <button class="btn" onclick="showMissions()">
+    🎯 MISSIONS
+  </button>
+
 </div>
 
 <div id="screen-pause" class="screen">
