@@ -218,9 +218,35 @@ h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
 <div id="game-container">
 <canvas id="gameCanvas"></canvas>
 <div id="hud" style="display:none">
-<div class="top-bar">
-<div id="hud-score">SCORE: 0<br><span style="font-size:.8rem">DIST: 0m</span></div>
-<div id="hud-coins">🪙 0</div>
+
+  <div class="race-hud">
+
+    <div class="hud-card score-card">
+      <span class="hud-label">SCORE</span>
+      <span id="hud-score">0</span>
+    </div>
+
+    <div class="hud-card distance-card">
+      <span class="hud-label">DISTANCE</span>
+      <span id="hud-distance">0m</span>
+    </div>
+
+    <div class="hud-card coin-card">
+      <span class="hud-label">COINS</span>
+      <span id="hud-coins">🪙 0</span>
+    </div>
+
+  </div>
+
+  <div id="pause-btn">Ⅱ</div>
+
+  <div id="powerup-hud" class="powerup-hud"></div>
+
+  <div class="controls">
+    <div class="control-btn" id="btn-left">◀</div>
+    <div class="control-btn" id="btn-right">▶</div>
+  </div>
+
 </div>
 <div id="pause-btn">||</div>
 <div id="powerup-hud" class="powerup-hud"></div>
