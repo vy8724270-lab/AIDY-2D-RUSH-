@@ -287,6 +287,9 @@ h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
   <button class="btn" onclick="showMissions()">
     🎯 MISSIONS
   </button>
+  <button id="btn-sound" class="btn sound-btn" onclick="toggleSound()">
+  🔊 SOUND ON
+</button>
 
 </div>
 
@@ -499,6 +502,8 @@ function toggleSound(){gameData.sound=!gameData.sound;document.getElementById('b
 function initBoot(){
   document.getElementById('home-coins').innerText=gameData.coins;
   document.getElementById('home-best').innerText=gameData.bestScore;
+  document.getElementById('btn-sound').innerText=
+    gameData.sound?'🔊 SOUND ON':'🔇 SOUND OFF';
 }
 initBoot();requestAnimationFrame(gameLoop);
 </script>
