@@ -483,7 +483,24 @@ function showMissions(){
     showScreen('screen-missions');
 }
 function gameOver(){state='OVER';playSound('crash');document.getElementById('hud').style.display='none';let finalScore=Math.floor(score),finalDist=Math.floor(distance);gameData.playTime+=runTime;document.getElementById('go-score').innerText=finalScore;document.getElementById('go-dist').innerText=finalDist;document.getElementById('go-coins').innerText=runCoins;let isNewBest=false;if(finalScore>gameData.bestScore){gameData.bestScore=finalScore;isNewBest=true}document.getElementById('go-best').innerText=gameData.bestScore;document.getElementById('new-record-msg').style.display=isNewBest?'block':'none';checkAchievementsAndMissionsEnd(finalScore,runCoins);saveData();showScreen('screen-gameover')}
-function updateHUD(){document.getElementById('hud-score').innerHTML=`SCORE: ${Math.floor(score)}<br><span style="font-size:.8rem">DIST: ${Math.floor(distance)}m</span>`;document.getElementById('hud-coins').innerText=`🪙 ${gameData.coins}`;let pText='';if(player.shield>0)pText+=`🛡️ ${Math.ceil(player.shield)}s `;if(player.magnet>0)pText+=`🧲 ${Math.ceil(player.magnet)}s `;if(player.nitro>0)pText+=`⚡ ${Math.ceil(player.nitro)}s `;document.getElementById('powerup-hud').innerText=pText}
+function updateHUD(){
+  document.getElementById('hud-score').innerText = Math.floor(score);
+  document.getElementById('hud-distance').innerText = Math.floor(distance) + 'm';
+  document.getElementById('hud-coins').innerText = '🪙 ' + gameData.coins;
+
+  let pText = '';
+
+  if(player.shield > 0)
+    pText += `🛡️ ${Math.ceil(player.shield)}s `;
+
+  if(player.magnet > 0)
+    pText += `🧲 ${Math.ceil(player.magnet)}s `;
+
+  if(player.nitro > 0)
+    pText += `⚡ ${Math.ceil(player.nitro)}s `;
+
+  document.getElementById('powerup-hud').innerText = pText;
+}
 function moveLeft(){if(state!=='GAME'||player.lane<=0)return;player.lane--;playSound('move')}
 function moveRight(){if(state!=='GAME'||player.lane>=2)return;player.lane++;playSound('move')}
 document.getElementById('btn-left').addEventListener('touchstart',e=>{e.preventDefault();moveLeft()});document.getElementById('btn-right').addEventListener('touchstart',e=>{e.preventDefault();moveRight()});document.getElementById('pause-btn').addEventListener('touchstart',e=>{e.preventDefault();pauseGame()});
