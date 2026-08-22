@@ -7,6 +7,62 @@
 <meta name="theme-color" content="#FF3366">
 <title>AIDY 2D RUSH</title>
 <style>
+ .race-hud{
+  position:absolute;
+  top:12px;
+  left:12px;
+  right:60px;
+  display:flex;
+  gap:8px;
+  z-index:5;
+}
+
+.hud-card{
+  flex:1;
+  min-width:0;
+  padding:8px 6px;
+  border:2px solid rgba(255,255,255,.35);
+  border-radius:12px;
+  background:rgba(0,0,0,.55);
+  backdrop-filter:blur(8px);
+  text-align:center;
+  color:#fff;
+  box-shadow:0 4px 12px rgba(0,0,0,.3);
+}
+
+.hud-label{
+  display:block;
+  font-size:.65rem;
+  font-weight:bold;
+  color:#00E5FF;
+  margin-bottom:3px;
+}
+
+.hud-card span:last-child{
+  display:block;
+  font-size:1rem;
+  font-weight:900;
+}
+
+.coin-card span:last-child{
+  color:#FFD700;
+}
+
+.distance-card span:last-child{
+  color:#fff;
+}
+
+#hud{
+  position:absolute;
+  inset:0;
+  z-index:5;
+  pointer-events:none;
+}
+
+#hud .controls,
+#hud #pause-btn{
+  pointer-events:auto;
+}
 :root{--primary:#FF3366;--secondary:#00E5FF;--dark:#111;--light:#FFF;--bg:#222;--panel:rgba(0,0,0,.85)}
 *{box-sizing:border-box;margin:0;padding:0;user-select:none;-webkit-user-select:none;font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif}
 body{background-color:var(--bg);color:var(--light);overflow:hidden;touch-action:none;width:100vw;height:100vh;display:flex;justify-content:center;align-items:center}
@@ -247,7 +303,7 @@ h2{font-size:2rem;margin-bottom:20px;color:var(--secondary)}
     <div class="control-btn" id="btn-right">▶</div>
   </div>
 
-
+</div>
 
 <div id="screen-home" class="screen active">
 
